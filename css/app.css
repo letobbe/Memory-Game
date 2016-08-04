@@ -1,0 +1,173 @@
+body {
+  margin: 0;
+  background-image: -webkit-linear-gradient(224deg, #3023AE 0%, #C86DD7 100%);
+  background-image: linear-gradient(-134deg, #3023AE 0%, #C86DD7 100%);
+  background-repeat: no-repeat;
+  width: 100%;
+  height: 100%; }
+  body.background-1 {
+    background-image: -webkit-linear-gradient(224deg, #3023AE 0%, #C86DD7 100%);
+    background-image: linear-gradient(-134deg, #3023AE 0%, #C86DD7 100%); }
+  body.background-2 {
+    background-image: -webkit-linear-gradient(top, #B4EC51 0%, #429321 100%);
+    background-image: linear-gradient(-180deg, #B4EC51 0%, #429321 100%); }
+  body.background-3 {
+    background-image: -webkit-linear-gradient(top, #F5515F 0%, #9F041B 100%);
+    background-image: linear-gradient(-180deg, #F5515F 0%, #9F041B 100%); }
+  body.background-4 {
+    background-image: -webkit-linear-gradient(top, #FAD961 0%, #F76B1C 100%);
+    background-image: linear-gradient(-180deg, #FAD961 0%, #F76B1C 100%); }
+
+#gameboard-wrap {
+  width: 100%;
+  height: 100vh;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -webkit-flex-direction: column;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  -webkit-box-align: center;
+  -webkit-align-items: center;
+      -ms-flex-align: center;
+          align-items: center; }
+
+#gameboard {
+  position: relative;
+  border-radius: 4px;
+  background-color: rgba(255, 255, 255, 0.25);
+  width: 380px;
+  max-width: 90%;
+  padding: 5px;
+  font-size: 0;
+  box-sizing: border-box; }
+  #gameboard .gamebrick {
+    cursor: pointer;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    box-sizing: border-box;
+    width: 20%;
+    padding-bottom: 20%;
+    background-color: rgba(0, 0, 0, 0.75);
+    display: inline-block;
+    position: relative;
+    -webkit-transition: background-color .3s ease-in-out;
+    transition: background-color .3s ease-in-out;
+    color: #fff;
+    -webkit-animation-name: animateBrick;
+            animation-name: animateBrick;
+    -webkit-animation-iteration-count: 1;
+            animation-iteration-count: 1;
+    -webkit-animation-timing-function: ease-out;
+            animation-timing-function: ease-out;
+    -webkit-animation-duration: 0.5s;
+            animation-duration: 0.5s; }
+    #gameboard .gamebrick div {
+      display: -webkit-box;
+      display: -webkit-flex;
+      display: -ms-flexbox;
+      display: flex;
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      -webkit-box-pack: center;
+      -webkit-justify-content: center;
+          -ms-flex-pack: center;
+              justify-content: center;
+      -webkit-box-align: center;
+      -webkit-align-items: center;
+          -ms-flex-align: center;
+              align-items: center;
+      font-size: 2.8rem; }
+    #gameboard .gamebrick.correct {
+      background-color: rgba(0, 128, 0, 0.75); }
+    #gameboard .gamebrick.wrong:not(.correct) {
+      background-color: rgba(255, 0, 0, 0.75); }
+  #gameboard.gameStarted .gamebrick:not(.correct):not(.wrong):hover {
+    background-color: rgba(0, 0, 0, 0.25); }
+  #gameboard.gameStarted .gamebrick > div {
+    display: none; }
+  #gameboard.gameboard-col-2 .gamebrick {
+    width: 50%;
+    padding-bottom: 50%; }
+  #gameboard.gameboard-col-3 .gamebrick {
+    width: 33.333333%;
+    padding-bottom: 33.333333%; }
+  #gameboard.gameboard-col-4 .gamebrick {
+    width: 25%;
+    padding-bottom: 25%; }
+  #gameboard.gameboard-col-5 .gamebrick {
+    width: 20%;
+    padding-bottom: 20%; }
+  #gameboard.gameboard-col-6 .gamebrick {
+    width: 16.66666666%;
+    padding-bottom: 16.66666666%; }
+
+#timer {
+  max-width: 90%;
+  width: 380px;
+  background-color: rgba(255, 255, 255, 0.25);
+  height: 4px;
+  margin-bottom: 5px;
+  border-radius: 4px; }
+  #timer.timerStart .timerline {
+    height: 100%;
+    width: 0%;
+    background-color: green;
+    -webkit-animation-name: animateTimer;
+            animation-name: animateTimer;
+    -webkit-animation-iteration-count: 1;
+            animation-iteration-count: 1;
+    -webkit-animation-timing-function: ease-out;
+            animation-timing-function: ease-out;
+    -webkit-animation-duration: 3.5s;
+            animation-duration: 3.5s; }
+
+#scoreboard {
+  border-radius: 4px;
+  background-color: rgba(255, 255, 255, 0.25);
+  width: 380px;
+  max-width: 90%;
+  padding: 5px;
+  box-sizing: border-box;
+  margin-top: 5px;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: justify;
+  -webkit-justify-content: space-between;
+      -ms-flex-pack: justify;
+          justify-content: space-between; }
+
+@-webkit-keyframes animateBrick {
+  0% {
+    -webkit-transform: scale(0);
+            transform: scale(0); }
+  100% {
+    -webkit-transform: scale(1);
+            transform: scale(1); } }
+
+@keyframes animateBrick {
+  0% {
+    -webkit-transform: scale(0);
+            transform: scale(0); }
+  100% {
+    -webkit-transform: scale(1);
+            transform: scale(1); } }
+@-webkit-keyframes animateTimer {
+  0% {
+    width: 0%; }
+  100% {
+    width: 100%; } }
+@keyframes animateTimer {
+  0% {
+    width: 0%; }
+  100% {
+    width: 100%; } }
