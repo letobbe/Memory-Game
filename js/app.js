@@ -92,8 +92,8 @@ function clickAction() {
 		brickClickCounter++;
 	} else if(this.getAttribute('data-number') == 0 || this.getAttribute('data-number') > brickClickCounter) {
 		this.className += ' wrong';
-		updateLives(-1);
 		updateScore(-100);
+		updateLives(-1);
 	}
 }
 
