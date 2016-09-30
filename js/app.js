@@ -1,23 +1,115 @@
-var level = 1;
-var score = 0;
-var brickClickCounter = 1;
-var gameBricksColumns = 2;
-var	gameBricksRows = 2;
-var lives = 0;
-/* Rendering of Gamebricks
-*/
+// Model
+
+var model = {
+	level: 1,
+	score: 0,
+	brickClickCounter: 1,
+	gameBricksColumns: 2,
+	gameBricksRows: 2,
+	lives: 3
+};
+
+// Controller
+
+var controller = {
+
+	init: function() {
+		view.render();
+	},
+	readLevel: function() {
+		return model.level;
+	},
+	updateLevel: function() {
+		model.level += 1;
+		view.renderLevel();
+	},
+	readHighscore: function() {
+		// Check for localStorage support
+		if (typeof(Storage) !== "undefined") {
+	    	if (localStorage.memoryHighscore) {
+	    		return localStorage.memoryHighscore
+	    	} else {
+	    		return 0;
+	    	}
+	    }
+	    alert('Your browser dont support highscore');
+	},
+	updateHighscore: function() {
+		// Check for localStorage support
+		if (typeof(Storage) !== "undefined") {
+			if (localStorage.memoryHighscore) {
+				if (localStorage.memoryHighscore < score) {
+					localStorage.memoryHighscore = score;
+				}
+			} else {
+			    localStorage.memoryHighscore = score;
+			}
+		} else {
+			alert('The highscore can not be saved');
+		}
+	},
+	readScore: function() {
+		return model.score;
+	},
+	updateScore: function(newScore) {
+		model.score += newScore;
+		view.renderInfo();
+	},
+	readLives: function() {
+		return model.lives;
+	},
+	updateLives: function(lifeChange) {
+		model.lives += lifeChange;
+		if (model.lives <= 0) {
+			alert("You lost the game");
+			this.reset();
+		} else {
+			view.renderInfo();
+		}
+	},
+	reset: function() {
+		model.level = 1;
+		model.score = 0;
+		model.brickClickCounter = 1;
+		model.gameBricksColumns = 2;
+		model.gameBricksRows = 2;
+		model.lives = 3;
+		this.init();
+	},
+};
+
+var view = {
+	render: function() {
+		this.renderLevel();
+	},
+	renderInfo: function() {
+		this.showHighScore = document.getElementById('showHighScore');
+		this.showLevel = document.getElementById('showLevel');
+		this.showScore = document.getElementById('showScore');
+		this.showLives = document.getElementById('showLives');
+
+		this.showHighScore.innerHTML = controller.readHighscore();
+		this.showLevel.innerHTML = controller.readLevel();
+		this.showScore.innerHTML = controller.readScore();
+		this.showLives.innerHTML = controller.readLives();
+	},
+	renderLevel: function() {
+		this.renderInfo();
+		renderGameBricks();
+	}
+};
+
 
 function renderGameBricks() {
-	showLevel.innerHTML = level;
-	var levelCounter = level;
-	var gameBricks = gameBricksColumns * gameBricksRows;
+	var levelCounter = controller.readLevel();
+	var gameBricks = model.gameBricksColumns * model.gameBricksRows;
 	if (levelCounter > gameBricks) {
 		var backgroundColor = Math.floor(Math.random() * 4) + 1;
 		document.getElementsByTagName('body')[0].className = 'background-' + backgroundColor;
-		updateLives(1);
-		gameBricksColumns++;
-		gameBricksRows++;
-		gameBricks = gameBricksColumns * gameBricksRows;
+		controller.updateLives(1);
+		model.gameBricksColumns++;
+		model.gameBricksRows++;
+		gameBricks = model.gameBricksColumns * model.gameBricksRows;
 	}
 	var gameBoard = document.getElementById('gameboard');
 
@@ -37,7 +129,7 @@ function renderGameBricks() {
 	// Resetting the class attribute so no css problem arise
 	gameBoard.removeAttribute("class");
 	// Add the css class for correct display of the bricks
-	gameBoard.className += "gameboard-col-" + gameBricksColumns;
+	gameBoard.className += "gameboard-col-" + model.gameBricksColumns;
 	// Removing all of the childs before adding new bricks
 	while (gameBoard.hasChildNodes()) {
   		gameBoard.removeChild(gameBoard.lastChild);
@@ -49,7 +141,7 @@ function renderGameBricks() {
 		var gameBrickNumber = gameBricksArray[gameBricks - 1];
 		gameBrickDiv.className = "gamebrick";
 		gameBrickDiv.dataset.number = gameBrickNumber;
-		if(gameBrickNumber != 0) { 
+		if(gameBrickNumber != 0) {
 			var gameBrickNumberDisplay = gameBrickNumber;
 		} else {
 			var gameBrickNumberDisplay = '';
@@ -83,91 +175,33 @@ function clickAction() {
 	var countThis = this.getAttribute('data-number');
 	if(this.getAttribute('data-number') == brickClickCounter) {
 		this.className += ' correct';
-		updateScore(100);
-		if(brickClickCounter == level) {
-			updateScore(500 + 50 * level);
-			level++;
+		controller.updateScore(100);
+		if(brickClickCounter == controller.readLevel()) {
+			controller.updateScore(500 + 50 * controller.readLevel());
+			controller.updateLevel();
 			renderGameBricks();
 		}
 		brickClickCounter++;
 	} else if(this.getAttribute('data-number') == 0 || this.getAttribute('data-number') > brickClickCounter) {
 		this.className += ' wrong';
-		updateScore(-100);
-		updateLives(-1);
+		controller.updateScore(-100);
+		controller.updateLives(-1);
 	}
-}
-
-function updateLives(lifeChange) {
-	lives += lifeChange;
-	showLives.innerHTML = lives;
-	if(lives <= 0) {
-		alert('You Lost!');
-		setHighScore();
-		resetGame();
-	}
-}
-function updateScore(addToSCore) {
-	score += addToSCore;
-	showScore.innerHTML = score;
 }
 Array.prototype.shuffle = function() {
     var input = this;
-     
+
     for (var i = input.length-1; i >=0; i--) {
-     
-        var randomIndex = Math.floor(Math.random()*(i+1)); 
-        var itemAtIndex = input[randomIndex]; 
-         
-        input[randomIndex] = input[i]; 
+
+        var randomIndex = Math.floor(Math.random()*(i+1));
+        var itemAtIndex = input[randomIndex];
+
+        input[randomIndex] = input[i];
         input[i] = itemAtIndex;
     }
     return input;
 }
-function checkHighScore() {
-	if (typeof(Storage) !== "undefined") {
-    // Code for localStorage/sessionStorage.
-    	if (localStorage.memoryHighscore) {
-    		showHighScore.innerHTML = localStorage.memoryHighscore
-    	} else {
-    		showHighScore.innerHTML = 0;
-    	}
-	} else {
-	    alert('Your browser dont support highscore');
-	}
-}
-function setHighScore() {
-	if (typeof(Storage) !== "undefined") {
-		if (localStorage.memoryHighscore) {
-			if (localStorage.memoryHighscore < score) {
-				localStorage.memoryHighscore = score;
-			}
-		} else {
-		    localStorage.memoryHighscore = score;
-		}
-	} else {
-		alert('The highscore can not be saved');
-	}
-}
-function resetGame() {
-	level = 1;
-	score = 0;
-	brickClickCounter = 1;
-	gameBricksColumns = 2;
-	gameBricksRows = 2;
-	lives = 0;
-	checkHighScore();
-	updateScore(0);
-	updateLives(3);
-	renderGameBricks();
-}
 
 window.onload = function() {
-	var showLevel = document.getElementById('showLevel');
-	var showScore = document.getElementById('showScore');
-	var showLives = document.getElementById('showLives');
-	var showHighScore = document.getElementById('showHighScore');
-	checkHighScore();
-	updateScore(0);
-	updateLives(3);
-	renderGameBricks();
+	controller.init();
 }
