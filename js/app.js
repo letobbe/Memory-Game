@@ -4,8 +4,6 @@ var model = {
 	level: 1,
 	score: 0,
 	brickClickCounter: 1,
-	gameBricksColumns: 2,
-	gameBricksRows: 2,
 	lives: 3
 };
 
@@ -17,7 +15,7 @@ var controller = {
 		view.render();
 	},
 	startGame: function() {
-
+		document.getElementById('timer').className += 'timerStart';
 		window.setTimeout(function() {
 			model.brickClickCounter = 1;
 			detectClicks();
@@ -37,7 +35,7 @@ var controller = {
 		// Check for localStorage support
 		if (typeof(Storage) !== "undefined") {
 	    	if (localStorage.memoryHighscore) {
-	    		return localStorage.memoryHighscore
+	    		return localStorage.memoryHighscore;
 	    	} else {
 	    		return 0;
 	    	}
@@ -77,6 +75,32 @@ var controller = {
 			view.renderInfo();
 		}
 	},
+	createBricks: function() {
+		var rows = Math.ceil(Math.sqrt(model.level));
+		if (rows < 2) {
+			rows = 2;
+		}
+		var bricks = rows * rows;
+		var bricksArray = [];
+		for (i = 0; i < bricks - model.level; i++) {
+		    bricksArray.push(0);
+		}
+		for (i = 0; i < model.level; i++) {
+			bricksArray.push(i + 1);
+		}
+	    for (var i = bricksArray.length-1; i >=0; i--) {
+
+	        var randomIndex = Math.floor(Math.random()*(i+1));
+	        var itemAtIndex = bricksArray[randomIndex];
+
+	        bricksArray[randomIndex] = bricksArray[i];
+	        bricksArray[i] = itemAtIndex;
+	    }
+		view.renderBricks(bricksArray);
+	},
+	brickClick: function() {
+
+	},
 	reset: function() {
 		model.level = 1;
 		model.score = 0;
@@ -103,118 +127,59 @@ var view = {
 		this.showScore.innerHTML = controller.readScore();
 		this.showLives.innerHTML = controller.readLives();
 	},
+	renderBricks: function(bricksArray) {
+		var gameBoard = document.getElementById('gameboard');
+		gameBoard.removeAttribute("class");
+		while (gameBoard.hasChildNodes()) {
+  			gameBoard.removeChild(gameBoard.lastChild);
+		}
+		console.log(controller.readLevel());
+		console.log(bricksArray.length);
+		if (controller.readLevel() > bricksArray.length) {
+			controller.updateLives(1);
+		}
+		gameBoard.className += "gameboard-col-" + Math.sqrt(bricksArray.length);
+		bricksArray.forEach( function(brick) {
+		    var gameBrickDiv = document.createElement('div');
+		    gameBrickDiv.className = "gamebrick";
+		    gameBrickDiv.dataset.number = brick;
+			if(brick !== 0) {
+				var gameBrickNumberDisplay = brick;
+			} else {
+				var gameBrickNumberDisplay = '';
+			}
+			gameBrickDiv.innerHTML = "<div>" + gameBrickNumberDisplay + "</div>";
+			gameBrickDiv.addEventListener('click', clickAction, false);
+			gameBoard.insertBefore( gameBrickDiv, gameBoard.firstChild );
+
+		});
+		controller.startGame();
+	},
 	renderLevel: function() {
+		var backgroundColor = Math.floor(Math.random() * 4) + 1;
+		document.getElementsByTagName('body')[0].className = 'background-' + backgroundColor;
 		this.renderInfo();
-		renderGameBricks();
+		controller.createBricks();
 	}
 };
 
 
-function renderGameBricks() {
-	var levelCounter = controller.readLevel();
-	var gameBricks = model.gameBricksColumns * model.gameBricksRows;
-	if (levelCounter > gameBricks) {
-		var backgroundColor = Math.floor(Math.random() * 4) + 1;
-		document.getElementsByTagName('body')[0].className = 'background-' + backgroundColor;
-		controller.updateLives(1);
-		model.gameBricksColumns++;
-		model.gameBricksRows++;
-		gameBricks = model.gameBricksColumns * model.gameBricksRows;
-	}
-	var gameBoard = document.getElementById('gameboard');
-
-	firstBrickCount = 0;
-	var gameBricksArray = [];
-	// Adding the bricks that doesnt contain a number to the array
-	while(firstBrickCount <= gameBricks - levelCounter - 1){
-	   gameBricksArray[firstBrickCount++] = 0;
-	}
-	// Adding the bricks that do contain a number to the array
-	while(0 < levelCounter){
-	   gameBricksArray[firstBrickCount++] = levelCounter--;
-	}
-	// Shuffling the array so the bricks with numbers comes in an randomized order
-	gameBricksArray = gameBricksArray.shuffle();
-
-	// Resetting the class attribute so no css problem arise
-	gameBoard.removeAttribute("class");
-	// Add the css class for correct display of the bricks
-	gameBoard.className += "gameboard-col-" + model.gameBricksColumns;
-	// Removing all of the childs before adding new bricks
-	while (gameBoard.hasChildNodes()) {
-  		gameBoard.removeChild(gameBoard.lastChild);
-	}
-
-	// Rendering the bricks
-	while(gameBricks > 0) {
-		var gameBrickDiv = document.createElement('div');
-		var gameBrickNumber = gameBricksArray[gameBricks - 1];
-		console.log(gameBrickNumber)
-		gameBrickDiv.className = "gamebrick";
-		gameBrickDiv.dataset.number = gameBrickNumber;
-		if(gameBrickNumber != 0) {
-			console.log("not")
-			var gameBrickNumberDisplay = gameBrickNumber;
-		} else {
-			var gameBrickNumberDisplay = '';
-		}
-		gameBrickDiv.innerHTML = "<div>" + gameBrickNumberDisplay + "</div>";
-		gameBoard.insertBefore( gameBrickDiv, gameBoard.firstChild );
-		gameBricks--;
-	}
-	document.getElementById('timer').className += 'timerStart';
-	controller.startGame();
-}
-
-function gameStart() {
-	brickClickCounter = 1;
-	detectClicks();
-	document.getElementById('timer').removeAttribute("class");
-	document.getElementById('gameboard').className += ' gameStarted';
-
-	var classname = document.getElementsByClassName("gamebrick");
-}
-
-function detectClicks() {
-	console.log("detecting clicks")
-	var classname = document.getElementsByClassName("gamebrick");
-
-	for (var i = 0; i < classname.length; i++) {
-	    classname[i].addEventListener('click', clickAction, false);
-	}
-}
-
 function clickAction() {
-	var countThis = this.getAttribute('data-number');
 	if(this.getAttribute('data-number') == model.brickClickCounter) {
 		this.className += ' correct';
 		controller.updateScore(100);
 		if(model.brickClickCounter == controller.readLevel()) {
 			controller.updateScore(500 + 50 * controller.readLevel());
 			controller.updateLevel();
-			renderGameBricks();
 		}
 		model.brickClickCounter++;
-	} else if(this.getAttribute('data-number') == 0 || this.getAttribute('data-number') > brickClickCounter) {
+	} else if(this.getAttribute('data-number') == 0 || this.getAttribute('data-number') > model.brickClickCounter) {
 		this.className += ' wrong';
 		controller.updateScore(-100);
 		controller.updateLives(-1);
 	}
 }
-Array.prototype.shuffle = function() {
-    var input = this;
-
-    for (var i = input.length-1; i >=0; i--) {
-
-        var randomIndex = Math.floor(Math.random()*(i+1));
-        var itemAtIndex = input[randomIndex];
-
-        input[randomIndex] = input[i];
-        input[i] = itemAtIndex;
-    }
-    return input;
-}
 
 window.onload = function() {
 	controller.init();
-}
+};
