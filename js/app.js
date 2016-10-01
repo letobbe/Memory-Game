@@ -148,8 +148,6 @@ var view = {
 		while (gameBoard.hasChildNodes()) {
   			gameBoard.removeChild(gameBoard.lastChild);
 		}
-		console.log(controller.readLevel());
-		console.log(bricksArray.length);
 		if (controller.readLevel() > bricksArray.length) {
 			controller.updateLives(1);
 		}
