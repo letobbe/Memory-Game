@@ -10,7 +10,6 @@ var model = {
 // Controller
 
 var controller = {
-
 	init: function() {
 		view.render();
 	},
@@ -18,7 +17,6 @@ var controller = {
 		document.getElementById('timer').className += 'timerStart';
 		window.setTimeout(function() {
 			model.brickClickCounter = 1;
-			detectClicks();
 			document.getElementById('timer').removeAttribute("class");
 			document.getElementById('gameboard').className += ' gameStarted';
 			var classname = document.getElementsByClassName("gamebrick");
@@ -46,11 +44,11 @@ var controller = {
 		// Check for localStorage support
 		if (typeof(Storage) !== "undefined") {
 			if (localStorage.memoryHighscore) {
-				if (localStorage.memoryHighscore < score) {
-					localStorage.memoryHighscore = score;
+				if (localStorage.memoryHighscore < model.score) {
+					localStorage.memoryHighscore = model.score;
 				}
 			} else {
-			    localStorage.memoryHighscore = score;
+			    localStorage.memoryHighscore = model.score;
 			}
 		} else {
 			alert('The highscore can not be saved');
@@ -61,6 +59,9 @@ var controller = {
 	},
 	updateScore: function(newScore) {
 		model.score += newScore;
+		if (this.readHighscore() < model.score) {
+			this.updateHighscore(model.score);
+		}
 		view.renderInfo();
 	},
 	readLives: function() {
@@ -99,7 +100,21 @@ var controller = {
 		view.renderBricks(bricksArray);
 	},
 	brickClick: function() {
-
+		if (document.getElementById('gameboard').classList.contains('gameStarted')) {
+			if(this.getAttribute('data-number') == model.brickClickCounter) {
+				this.className += ' correct';
+				controller.updateScore(100);
+				if(model.brickClickCounter == controller.readLevel()) {
+					controller.updateScore(500 + 50 * controller.readLevel());
+					controller.updateLevel();
+				}
+				model.brickClickCounter++;
+			} else if(this.getAttribute('data-number') == 0 || this.getAttribute('data-number') > model.brickClickCounter) {
+				this.className += ' wrong';
+				controller.updateScore(-100);
+				controller.updateLives(-1);
+			}
+		}
 	},
 	reset: function() {
 		model.level = 1;
@@ -149,7 +164,7 @@ var view = {
 				var gameBrickNumberDisplay = '';
 			}
 			gameBrickDiv.innerHTML = "<div>" + gameBrickNumberDisplay + "</div>";
-			gameBrickDiv.addEventListener('click', clickAction, false);
+			gameBrickDiv.addEventListener('click', controller.brickClick, false);
 			gameBoard.insertBefore( gameBrickDiv, gameBoard.firstChild );
 
 		});
@@ -162,23 +177,6 @@ var view = {
 		controller.createBricks();
 	}
 };
-
-
-function clickAction() {
-	if(this.getAttribute('data-number') == model.brickClickCounter) {
-		this.className += ' correct';
-		controller.updateScore(100);
-		if(model.brickClickCounter == controller.readLevel()) {
-			controller.updateScore(500 + 50 * controller.readLevel());
-			controller.updateLevel();
-		}
-		model.brickClickCounter++;
-	} else if(this.getAttribute('data-number') == 0 || this.getAttribute('data-number') > model.brickClickCounter) {
-		this.className += ' wrong';
-		controller.updateScore(-100);
-		controller.updateLives(-1);
-	}
-}
 
 window.onload = function() {
 	controller.init();
