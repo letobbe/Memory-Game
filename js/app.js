@@ -16,6 +16,16 @@ var controller = {
 	init: function() {
 		view.render();
 	},
+	startGame: function() {
+
+		window.setTimeout(function() {
+			model.brickClickCounter = 1;
+			detectClicks();
+			document.getElementById('timer').removeAttribute("class");
+			document.getElementById('gameboard').className += ' gameStarted';
+			var classname = document.getElementsByClassName("gamebrick");
+		}, 3500);
+	},
 	readLevel: function() {
 		return model.level;
 	},
@@ -139,9 +149,11 @@ function renderGameBricks() {
 	while(gameBricks > 0) {
 		var gameBrickDiv = document.createElement('div');
 		var gameBrickNumber = gameBricksArray[gameBricks - 1];
+		console.log(gameBrickNumber)
 		gameBrickDiv.className = "gamebrick";
 		gameBrickDiv.dataset.number = gameBrickNumber;
 		if(gameBrickNumber != 0) {
+			console.log("not")
 			var gameBrickNumberDisplay = gameBrickNumber;
 		} else {
 			var gameBrickNumberDisplay = '';
@@ -151,7 +163,7 @@ function renderGameBricks() {
 		gameBricks--;
 	}
 	document.getElementById('timer').className += 'timerStart';
-	setTimeout(gameStart, 3500);
+	controller.startGame();
 }
 
 function gameStart() {
@@ -164,6 +176,7 @@ function gameStart() {
 }
 
 function detectClicks() {
+	console.log("detecting clicks")
 	var classname = document.getElementsByClassName("gamebrick");
 
 	for (var i = 0; i < classname.length; i++) {
@@ -173,15 +186,15 @@ function detectClicks() {
 
 function clickAction() {
 	var countThis = this.getAttribute('data-number');
-	if(this.getAttribute('data-number') == brickClickCounter) {
+	if(this.getAttribute('data-number') == model.brickClickCounter) {
 		this.className += ' correct';
 		controller.updateScore(100);
-		if(brickClickCounter == controller.readLevel()) {
+		if(model.brickClickCounter == controller.readLevel()) {
 			controller.updateScore(500 + 50 * controller.readLevel());
 			controller.updateLevel();
 			renderGameBricks();
 		}
-		brickClickCounter++;
+		model.brickClickCounter++;
 	} else if(this.getAttribute('data-number') == 0 || this.getAttribute('data-number') > brickClickCounter) {
 		this.className += ' wrong';
 		controller.updateScore(-100);
